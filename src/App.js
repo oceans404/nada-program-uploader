@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -12,8 +12,7 @@ import {
   Text,
   HStack,
 } from '@chakra-ui/react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CollapsibleCode from './CollapsibleCode';
 
 const StoreProgramApp = () => {
   const [file, setFile] = useState(null);
@@ -24,8 +23,24 @@ const StoreProgramApp = () => {
   const [error, setError] = useState(null);
   const [fileContent, setFileContent] = useState('');
   const [hideAlert, setHideAlert] = useState(false);
+  const [networkInfo, setNetworkInfo] = useState(null);
   const fileInputRef = useRef(null);
-  const [isBoxOpen, setIsBoxOpen] = useState(false);
+
+  const baseUrl = 'https://store-nada-program.onrender.com';
+
+  const getNetworkInfo = async () => {
+    const response = await fetch(`${baseUrl}/check-nillion-version`);
+    return response.json();
+  };
+
+  useEffect(() => {
+    const fetchTestnetInfo = async () => {
+      const info = await getNetworkInfo();
+      setNetworkInfo(info);
+    };
+
+    fetchTestnetInfo();
+  }, []);
 
   const handleFileChange = (event) => {
     setError(null);
@@ -66,7 +81,7 @@ const StoreProgramApp = () => {
     formData.append('file', file);
 
     try {
-      const url = `https://nillion-store-program-api-1.onrender.com/store-program/${
+      const url = `${baseUrl}/store-program/${
         userSeed ? `?user_seed=${userSeed}` : ''
       }`;
 
@@ -123,8 +138,17 @@ const StoreProgramApp = () => {
                       error
                     ) : (
                       <>
-                        Success! Stored your {fileName} Nada program on the
+                        Successfully stored your {fileName} Nada program on the
                         Nillion Testnet
+                        <Button
+                          marginLeft={4}
+                          colorScheme="gray"
+                          onClick={() =>
+                            navigator.clipboard.writeText(result.program_id)
+                          }
+                        >
+                          Copy Program ID
+                        </Button>
                       </>
                     )}
                   </Text>
@@ -146,13 +170,27 @@ const StoreProgramApp = () => {
           margin: '0 auto',
         }}
       >
-        <Heading size="xl">Store Nada Program on the Nillion Testnet</Heading>
+        <Heading size="xl">Nada Program Uploader</Heading>
+        <Heading size="md" my={4}>
+          Store a Nada Program on the Nillion Testnet
+        </Heading>
+        {networkInfo && (
+          <CollapsibleCode
+            title={`Nillion Testnet Network Info`}
+            fileContent={JSON.stringify(networkInfo, null, 2)}
+            language="json"
+            copyText="Copy Network Info"
+          />
+        )}
         <VStack spacing={4} align="stretch">
           <FormControl>
-            <FormLabel my={2}>
-              User Seed (optional - if no user seed is provided, the program
-              will be stored with a random user seed)
+            <FormLabel my={2} fontWeight="bold">
+              User Seed
             </FormLabel>
+            <Text my={2} size="sm">
+              Optional - if no user seed is provided, the program will be stored
+              with a random user seed
+            </Text>
             <Input
               value={userSeed}
               onChange={(e) => setUserSeed(e.target.value)}
@@ -160,7 +198,21 @@ const StoreProgramApp = () => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel my={2}>Nada Program File</FormLabel>
+            <FormLabel my={2} fontWeight="bold">
+              Nada Program File
+            </FormLabel>
+            <Text my={2}>
+              Need some inspiration? Check out the programs in{' '}
+              <a
+                href="https://github.com/NillionNetwork/nada-by-example/tree/main/src"
+                target="_blank"
+                rel="noopener noreferrer"
+                color="blue.600"
+                fontWeight="bold"
+              >
+                Nada by Example
+              </a>
+            </Text>
             <Input
               type="file"
               accept=".py"
@@ -171,25 +223,12 @@ const StoreProgramApp = () => {
           </FormControl>
 
           {fileContent && (
-            <Box mt={4} p={4} borderWidth={1} borderRadius="md" bg="gray.50">
-              <HStack
-                justify="space-between"
-                onClick={() => setIsBoxOpen(!isBoxOpen)}
-                style={{ cursor: 'pointer' }}
-              >
-                <Text fontWeight="bold">Nada Program: {fileName}.py</Text>
-                <Button size="sm">{isBoxOpen ? 'Collapse' : 'Expand'}</Button>
-              </HStack>
-              {isBoxOpen && (
-                <SyntaxHighlighter
-                  language="python"
-                  style={okaidia}
-                  showLineNumbers
-                >
-                  {fileContent}
-                </SyntaxHighlighter>
-              )}
-            </Box>
+            <CollapsibleCode
+              title={`Nada Program: ${fileName}.py`}
+              fileContent={fileContent}
+              language="python"
+              startIsOpen
+            />
           )}
 
           <HStack spacing={4} width="full">
@@ -215,18 +254,28 @@ const StoreProgramApp = () => {
                 Stored Nada Program
               </Heading>
               <HStack spacing={2} justify="space-between">
-                <Text fontWeight="bold" color="blue.600">
-                  Nillion Testnet Program ID: {result.program_id}
+                <Text overflowWrap="break-word">
+                  <Text fontWeight="bold" color="blue.600">
+                    Nillion Testnet Program ID:
+                  </Text>{' '}
+                  {result.program_id}
                 </Text>
                 <Button
                   colorScheme="blue"
                   onClick={() =>
                     navigator.clipboard.writeText(result.program_id)
                   }
+                  minWidth={200}
                 >
                   Copy Program ID
                 </Button>
               </HStack>
+
+              <CollapsibleCode
+                title="JSON Content"
+                fileContent={JSON.stringify(result.json_content, null, 2)}
+                language="json"
+              />
             </Box>
           )}
         </VStack>

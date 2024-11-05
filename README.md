@@ -1,4 +1,8 @@
-# Getting Started with Create React App
+# Nada Program Uploader
+
+This web app allows you to upload, compile, and store a Nada program on the Nillion Testnet. Behind the scenes it uses [an API](https://github.com/oceans404/nillion-store-program-api) to store the program on the Nillion Testnet, and returns the stored Program ID and the JSON Content of the program.
+
+## Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
