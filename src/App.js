@@ -11,6 +11,7 @@ import {
   VStack,
   Text,
   HStack,
+  Link,
 } from '@chakra-ui/react';
 import CollapsibleCode from './CollapsibleCode';
 
@@ -125,12 +126,7 @@ const StoreProgramApp = () => {
       {!hideAlert && (
         <>
           {result && (
-            <Alert
-              status={error ? 'error' : 'success'}
-              // position="absolute"
-              top={0}
-              width="full"
-            >
+            <Alert status={error ? 'error' : 'success'} top={0} width="full">
               <HStack justify="space-between" width="full">
                 <AlertDescription>
                   <Text>
@@ -202,16 +198,16 @@ const StoreProgramApp = () => {
               Nada Program File
             </FormLabel>
             <Text my={2}>
-              Need some inspiration? Check out the programs in{' '}
-              <a
-                href="https://github.com/NillionNetwork/nada-by-example/tree/main/src"
+              Need some inspiration? Check out the Nada program examples in{' '}
+              <Link
+                href="https://docs.nillion.com/nada-by-example"
                 target="_blank"
                 rel="noopener noreferrer"
                 color="blue.600"
                 fontWeight="bold"
               >
                 Nada by Example
-              </a>
+              </Link>
             </Text>
             <Input
               type="file"
@@ -250,16 +246,10 @@ const StoreProgramApp = () => {
 
           {result && !error && (
             <Box mt={4} p={4} borderWidth={1} borderRadius="md" bg="gray.100">
-              <Heading size="lg" marginBottom={4}>
-                Stored Nada Program
-              </Heading>
               <HStack spacing={2} justify="space-between">
-                <Text overflowWrap="break-word">
-                  <Text fontWeight="bold" color="blue.600">
-                    Nillion Testnet Program ID:
-                  </Text>{' '}
-                  {result.program_id}
-                </Text>
+                <Heading size="lg" marginBottom={4}>
+                  Stored Nada Program
+                </Heading>
                 <Button
                   colorScheme="blue"
                   onClick={() =>
@@ -270,6 +260,14 @@ const StoreProgramApp = () => {
                   Copy Program ID
                 </Button>
               </HStack>
+
+              <Text
+                fontWeight="bold"
+                color="blue.600"
+                overflowWrap="break-word"
+              >
+                Nillion Testnet Program ID: {result.program_id}
+              </Text>
 
               <CollapsibleCode
                 title="JSON Content"
