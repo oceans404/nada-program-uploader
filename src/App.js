@@ -126,7 +126,14 @@ const StoreProgramApp = () => {
       {!hideAlert && (
         <>
           {result && (
-            <Alert status={error ? 'error' : 'success'} top={0} width="full">
+            <Alert
+              status={error ? 'error' : 'success'}
+              top={0}
+              width="full"
+              position="sticky"
+              opacity={100}
+              zIndex={1000}
+            >
               <HStack justify="space-between" width="full">
                 <AlertDescription>
                   <Text>
